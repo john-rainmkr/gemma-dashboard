@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bigger Bolder Baking · Amazon Performance Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- DESIGN TOKENS ---------- */
+:root {
+  --teal: #3DBCB4;
+  --teal-dark: #2A9A93;
+  --teal-tint: #E8F6F5;
+  --red: #E51D2B;
+  --red-dark: #C01622;
+  --red-tint: #FCEBED;
+  --ink: #212529;
+  --charcoal: #303030;
+  --bar: #3C3C3C;
+  --paper: #FFFFFF;
+  --cream: #FAF8F4;
+  --alt: #F4F2EE;
+  --rule: #E5E0D8;
+  --muted: #6E6E6E;
+  --good: #2A9A93;
+  --bad: #E51D2B;
+  --shadow: 0 1px 0 rgba(0,0,0,0.04), 0 8px 24px rgba(48,48,48,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Open Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- TYPOGRAPHY HELPERS ---------- */
+.script {
+  font-family: 'Dancing Script', cursive;
+  color: var(--red);
+  font-weight: 700;
+  font-style: italic;
+}
+.bold-display {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+}
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- HEADER BAR (dark, dashboard-feeling) ---------- */
+.topbar {
+  background: var(--charcoal);
+  color: #fff;
+  border-bottom: 3px solid var(--teal);
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 0 var(--red);
+}
+.topbar-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.brand-lockup {
+  display: flex; align-items: baseline; gap: 8px;
+  font-family: 'Nunito Sans', sans-serif;
+}
+.brand-lockup .gemmas {
+  color: var(--teal);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.brand-lockup .bigger,
+.brand-lockup .baking {
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.brand-lockup .bolder {
+  font-family: 'Dancing Script', cursive;
+  color: var(--red);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 24px;
+  position: relative;
+  padding: 0 2px;
+}
+.brand-lockup .bolder::after {
+  content: '';
+  position: absolute;
+  left: 2px; right: 2px;
+  bottom: -3px; height: 2px;
+  background: var(--red);
+  border-radius: 2px;
+  transform: skewX(-12deg);
+}
+.brand-divider {
+  width: 1px; height: 28px; background: #555;
+}
+.dashboard-label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #BFC2C5;
+}
+.topbar-nav {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 28px;
+}
+.topbar-nav a {
+  font-size: 12px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D7D7D7;
+  font-weight: 600;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.topbar-nav a:hover { color: var(--teal); }
+.topbar-nav a.active { color: var(--teal); border-bottom-color: var(--teal); }
+.topbar-cta {
+  font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: var(--red);
+  color: #fff;
+  padding: 9px 16px;
+  border-radius: 2px;
+}
+
+/* ---------- LAYOUT ---------- */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* ---------- PAGE TITLE / META STRIP ---------- */
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 24px; flex-wrap: wrap;
+}
+.page-title h1 {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 0.01em;
+  color: var(--charcoal);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.page-title h1 .accent {
+  font-family: 'Dancing Script', cursive;
+  color: var(--red);
+  font-weight: 700;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 42px;
+  padding: 0 6px;
+  position: relative;
+}
+.page-title h1 .accent::after {
+  content: '';
+  position: absolute; left: 6px; right: 6px;
+  bottom: 2px; height: 3px;
+  background: var(--red);
+  border-radius: 3px;
+  transform: skewX(-10deg);
+}
+.page-title p {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.page-meta {
+  display: flex; gap: 12px; align-items: center;
+}
+.pill {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--charcoal);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.pill .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-tint);
+}
+.pill.dark {
+  background: var(--charcoal); color: #fff; border-color: var(--charcoal);
+}
+.pill.dark .dot { background: var(--red); box-shadow: 0 0 0 3px rgba(229,29,43,0.25); }
+
+/* ---------- SECTION HEADER ---------- */
+.section { margin-top: 48px; }
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 14px;
+}
+.section-head h2 {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+}
+.section-head h2 .script {
+  font-size: 30px;
+  margin-right: 6px;
+  position: relative;
+  padding: 0 4px;
+}
+.section-head h2 .script::after {
+  content: '';
+  position: absolute; left: 4px; right: 4px;
+  bottom: 2px; height: 2px;
+  background: var(--red);
+  border-radius: 2px;
+  transform: skewX(-10deg);
+}
+.section-head .meta {
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+
+/* ---------- KPI ROW ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.kpi {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--teal);
+}
+.kpi.alt::before { background: var(--red); }
+.kpi-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.kpi-value {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 30px;
+  color: var(--charcoal);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-value .unit {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-left: 4px;
+}
+.kpi-delta {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.delta-up { color: var(--good); }
+.delta-down { color: var(--bad); }
+.kpi-foot {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.spark {
+  position: absolute;
+  right: 12px; top: 16px;
+  width: 80px; height: 30px;
+}
+
+/* ---------- HERO SKU SPOTLIGHT ---------- */
+.hero-sku {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.hero-sku-img {
+  background: var(--alt);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  min-height: 280px;
+}
+.hero-sku-img::after {
+  content: 'HERO SKU';
+  position: absolute; top: 14px; left: 14px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 2px;
+}
+.hero-sku-body {
+  padding: 24px 28px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 18px;
+}
+.hero-sku-title {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--charcoal);
+  margin-bottom: 4px;
+}
+.hero-sku-sub {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.hero-sku-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  border-top: 1px solid var(--rule);
+  padding-top: 18px;
+}
+.hero-sku-stats .stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.hero-sku-stats .stat-val {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--charcoal);
+  font-variant-numeric: tabular-nums;
+}
+.hero-sku-stats .stat-delta {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ---------- 2-COL: TREND CHART + REVIEW PANEL ---------- */
+.two-col {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 22px;
+}
+.card-title {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  margin-bottom: 4px;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+.card-head-flex {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 18px;
+}
+.card-head-flex .titles { }
+.card-toggle {
+  display: flex; gap: 0;
+  background: var(--alt);
+  border-radius: 3px;
+  padding: 3px;
+}
+.card-toggle button {
+  border: none; background: transparent;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.card-toggle button.active {
+  background: var(--charcoal); color: #fff;
+}
+
+/* ---------- SKU TABLE ---------- */
+.sku-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.sku-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--charcoal);
+}
+.sku-table th.num { text-align: right; }
+.sku-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+}
+.sku-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+.sku-table tr:hover td { background: var(--cream); }
+.sku-cell {
+  display: flex; align-items: center; gap: 12px;
+}
+.sku-thumb {
+  width: 44px; height: 44px;
+  background: var(--alt);
+  background-size: cover;
+  background-position: center;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid var(--rule);
+}
+.sku-name {
+  font-weight: 700;
+  color: var(--charcoal);
+  font-size: 13px;
+  line-height: 1.2;
+}
+.sku-asin {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+.bar-mini {
+  display: inline-block;
+  width: 60px;
+  height: 6px;
+  background: var(--alt);
+  border-radius: 3px;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.bar-mini::after {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--teal);
+  border-radius: 3px;
+  width: var(--w, 50%);
+}
+.bar-mini.red::after { background: var(--red); }
+
+/* tags */
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+.tag.green { background: var(--teal-tint); color: var(--teal-dark); }
+.tag.red { background: var(--red-tint); color: var(--red-dark); }
+.tag.gray { background: var(--alt); color: var(--muted); }
+
+/* ---------- REVIEWS + BOLD BAKER PANEL ---------- */
+.reviews-card .rating {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 4px;
+}
+.rating-num {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 42px;
+  color: var(--charcoal);
+  line-height: 1;
+}
+.stars {
+  color: var(--red);
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+.rating-meta {
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 18px;
+}
+.rev-row {
+  display: grid;
+  grid-template-columns: 16px 1fr 40px;
+  gap: 10px; align-items: center;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--charcoal);
+  font-variant-numeric: tabular-nums;
+}
+.rev-bar {
+  height: 7px;
+  background: var(--alt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.rev-bar > span {
+  display: block; height: 100%;
+  background: var(--red);
+  border-radius: 3px;
+}
+.themes { margin-top: 18px; }
+.theme {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+}
+.theme:last-child { border: none; }
+.theme-name { color: var(--charcoal); font-weight: 600; }
+.theme-sent {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+}
+.theme-sent.pos { color: var(--teal-dark); }
+.theme-sent.neg { color: var(--red-dark); }
+
+/* ---------- QUERY / SEARCH PANEL ---------- */
+.query-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.query-list {
+  list-style: none;
+}
+.query-list li {
+  display: grid;
+  grid-template-columns: 1fr 80px 60px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+}
+.query-list li:last-child { border: none; }
+.q-term {
+  color: var(--charcoal);
+  font-weight: 600;
+}
+.q-term .tag-mini {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+}
+.q-term .tag-mini.brand { color: var(--red); border-color: var(--red); }
+.q-term .tag-mini.cat { color: var(--teal-dark); border-color: var(--teal); }
+.q-vol {
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+  color: var(--charcoal);
+  font-weight: 600;
+  font-size: 12px;
+}
+.q-delta {
+  text-align: right;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ---------- ADS / TACoS PANEL ---------- */
+.donut-wrap {
+  display: flex; gap: 24px; align-items: center;
+}
+.donut {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--red) 0deg 86deg,
+    var(--teal) 86deg 220deg,
+    var(--alt) 220deg 360deg
+  );
+  position: relative;
+  flex-shrink: 0;
+}
+.donut::after {
+  content: '';
+  position: absolute; inset: 14px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 2;
+}
+.donut-center .lbl {
+  font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+  font-weight: 700;
+}
+.donut-center .val {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--charcoal);
+}
+.legend { flex: 1; }
+.leg-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+}
+.leg-row:last-child { border: none; }
+.swatch {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+}
+.leg-name { color: var(--charcoal); font-weight: 600; }
+.leg-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+/* ---------- INVENTORY PANEL ---------- */
+.inv-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 90px 90px;
+  gap: 12px; align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+}
+.inv-row:last-child { border: none; }
+.inv-row .sku-cell { gap: 10px; }
+.inv-row .sku-thumb { width: 32px; height: 32px; }
+.inv-bar {
+  width: 100%; height: 8px;
+  background: var(--alt);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+.inv-bar > span {
+  display: block; height: 100%;
+  border-radius: 3px;
+  background: var(--teal);
+}
+.inv-bar > span.warn { background: #E89B2A; }
+.inv-bar > span.crit { background: var(--red); }
+.weeks {
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+/* ---------- PLACEHOLDER MODULE (Module 3) ---------- */
+.placeholder {
+  background: linear-gradient(180deg, var(--alt) 0%, var(--cream) 100%);
+  border: 2px dashed var(--rule);
+  border-radius: 4px;
+  padding: 36px;
+  text-align: center;
+  position: relative;
+}
+.placeholder .badge {
+  display: inline-block;
+  background: var(--charcoal);
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+}
+.placeholder h3 {
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.placeholder h3 .script {
+  font-size: 28px;
+  margin-right: 4px;
+  padding: 0 3px;
+  position: relative;
+}
+.placeholder h3 .script::after {
+  content: '';
+  position: absolute; left: 3px; right: 3px;
+  bottom: 2px; height: 2px;
+  background: var(--red);
+  border-radius: 2px;
+  transform: skewX(-10deg);
+}
+.placeholder p {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ---------- FOOTER ---------- */
+.footer {
+  background: var(--bar);
+  color: #BFC2C5;
+  margin-top: 64px;
+  padding: 24px 32px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-top: 3px solid var(--teal);
+}
+.footer .teal { color: var(--teal); font-weight: 700; }
+.footer .red { color: var(--red); font-weight: 700; }
+.footer .disclaimer {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #888;
+  text-transform: none;
+}
+
+/* ---------- CHART SVG STYLE ---------- */
+.chart-wrap {
+  width: 100%; height: 280px;
+  position: relative;
+}
+.chart-wrap svg { width: 100%; height: 100%; }
+.chart-legend {
+  display: flex; gap: 18px; margin-top: 12px;
+  font-size: 11px; color: var(--muted);
+  font-weight: 600; letter-spacing: 0.05em;
+}
+.chart-legend .ll {
+  display: flex; align-items: center; gap: 6px;
+}
+.chart-legend .ll::before {
+  content: ''; display: inline-block;
+  width: 14px; height: 3px; border-radius: 2px;
+}
+.chart-legend .ll.teal::before { background: var(--teal); }
+.chart-legend .ll.red::before { background: var(--red); }
+.chart-legend .ll.dash::before {
+  background: repeating-linear-gradient(90deg, var(--muted) 0 4px, transparent 4px 7px);
+  height: 2px;
+}
+
+/* responsive trim */
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col, .query-grid { grid-template-columns: 1fr; }
+  .hero-sku { grid-template-columns: 1fr; }
+  .topbar-nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== TOP BAR ========== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-lockup">
+      <span class="gemmas">Gemma's</span>
+      <span class="bigger">Bigger</span>
+      <span class="bolder">Bolder</span>
+      <span class="baking">Baking</span>
+    </div>
+    <div class="brand-divider"></div>
+    <div class="dashboard-label">Amazon Performance Dashboard</div>
+    <nav class="topbar-nav">
+      <a href="#" class="active">Overview</a>
+      <a href="#">Catalog</a>
+      <a href="#">Search</a>
+      <a href="#">Advertising</a>
+      <a href="#">Reviews</a>
+      <a href="#">Inventory</a>
+    </nav>
+    <a class="topbar-cta" href="#">Export Report</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ========== PAGE HEAD ========== -->
+  <div class="page-head">
+    <div class="page-title">
+      <h1>Bold Baker <span class="accent">business</span> snapshot</h1>
+      <p>Trailing 4 weeks · ending Sun, May 24, 2026 · all marketplaces · USD</p>
+    </div>
+    <div class="page-meta">
+      <span class="pill"><span class="dot"></span>Data fresh · 04:12 ET</span>
+      <span class="pill dark"><span class="dot"></span>YoY vs 2025 enabled</span>
+    </div>
+  </div>
+
+  <!-- ========== KPI ROW ========== -->
+  <section class="section" style="margin-top:0;">
+    <div class="section-head">
+      <h2><span class="script">Top</span> LINE · LAST 28 DAYS</h2>
+      <div class="meta">vs prior 28 days · vs YoY</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Ordered Revenue</div>
+        <div class="kpi-value">$184,720</div>
+        <div class="kpi-delta delta-up">▲ 12.4% wow · ▲ 38.1% YoY</div>
+        <svg class="spark" viewBox="0 0 80 30" preserveAspectRatio="none">
+          <polyline points="0,22 10,20 20,18 30,15 40,16 50,10 60,11 70,6 80,4"
+            fill="none" stroke="#3DBCB4" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <div class="kpi alt">
+        <div class="kpi-label">Units Sold</div>
+        <div class="kpi-value">14,832 <span class="unit">u</span></div>
+        <div class="kpi-delta delta-up">▲ 9.6% wow · ▲ 41.0% YoY</div>
+        <svg class="spark" viewBox="0 0 80 30" preserveAspectRatio="none">
+          <polyline points="0,20 10,18 20,22 30,14 40,12 50,13 60,8 70,9 80,5"
+            fill="none" stroke="#E51D2B" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">Sessions</div>
+        <div class="kpi-value">312,450</div>
+        <div class="kpi-delta delta-up">▲ 6.8% wow · ▲ 22.4% YoY</div>
+        <svg class="spark" viewBox="0 0 80 30" preserveAspectRatio="none">
+          <polyline points="0,18 10,16 20,14 30,17 40,12 50,11 60,9 70,10 80,7"
+            fill="none" stroke="#3DBCB4" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <div class="kpi alt">
+        <div class="kpi-label">Ad Spend</div>
+        <div class="kpi-value">$15,516</div>
+        <div class="kpi-delta" style="color:var(--muted);">▲ 4.2% wow · ROAS <span style="color:var(--good);font-weight:700;">11.9x</span></div>
+        <svg class="spark" viewBox="0 0 80 30" preserveAspectRatio="none">
+          <polyline points="0,16 10,18 20,14 30,15 40,11 50,12 60,9 70,10 80,7"
+            fill="none" stroke="#E51D2B" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CATALOG TABLE ========== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="script">Catalog</span> PERFORMANCE · BY SKU</h2>
+      <div class="meta">Sorted by 28-day ordered revenue</div>
+    </div>
+
+    <div class="card" style="padding:8px 12px;">
+      <table class="sku-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th class="num">Revenue (28d)</th>
+            <th class="num">Units</th>
+            <th class="num">Sessions</th>
+            <th class="num">CVR</th>
+            <th class="num">YoY</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background-image:url('https://images-na.ssl-images-amazon.com/images/I/81pCQpx7y6L._SL1500_.jpg');"></div>
+                <div>
+                  <div class="sku-name">Bigger Bolder Baking Every Day · Cookbook</div>
+                  <div class="sku-asin">B0BHQ7XY12 · Books</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$64,210</td>
+            <td class="num">2,408</td>
+            <td class="num">112,830</td>
+            <td class="num">18.2%</td>
+            <td class="num" style="color:var(--good);">▲ 28.5%</td>
+            <td><span class="tag green">Hero</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#5C3317 0%,#3D1F0C 100%);"></div>
+                <div>
+                  <div class="sku-name">Bold Bakery Chocolate Chip Cookie Mix · 16oz</div>
+                  <div class="sku-asin">B0DG12FA01 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$38,940</td>
+            <td class="num">3,162</td>
+            <td class="num">58,420</td>
+            <td class="num">14.6%</td>
+            <td class="num" style="color:var(--good);">▲ 64.1%</td>
+            <td><span class="tag green">Growth</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#3A1D0B 0%,#1F0E04 100%);"></div>
+                <div>
+                  <div class="sku-name">Bold Bakery Fudge Brownie Mix · 18oz</div>
+                  <div class="sku-asin">B0DG12FA02 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$28,610</td>
+            <td class="num">2,418</td>
+            <td class="num">44,290</td>
+            <td class="num">13.4%</td>
+            <td class="num" style="color:var(--good);">▲ 52.0%</td>
+            <td><span class="tag green">Growth</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#C19A6B 0%,#8B6B43 100%);"></div>
+                <div>
+                  <div class="sku-name">Real Irish Scone Mix · 14oz</div>
+                  <div class="sku-asin">B0DG12FA03 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$22,180</td>
+            <td class="num">1,940</td>
+            <td class="num">38,110</td>
+            <td class="num">10.8%</td>
+            <td class="num" style="color:var(--good);">▲ 18.3%</td>
+            <td><span class="tag gray">Steady</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#D4A574 0%,#A57642 100%);"></div>
+                <div>
+                  <div class="sku-name">Banana Bread Mix · 16oz</div>
+                  <div class="sku-asin">B0DG12FA04 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$18,420</td>
+            <td class="num">1,720</td>
+            <td class="num">34,510</td>
+            <td class="num">9.9%</td>
+            <td class="num" style="color:var(--good);">▲ 11.4%</td>
+            <td><span class="tag gray">Steady</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#E8C078 0%,#B88B3E 100%);"></div>
+                <div>
+                  <div class="sku-name">Buttermilk Pancake Mix · 20oz</div>
+                  <div class="sku-asin">B0DG12FA05 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$8,210</td>
+            <td class="num">820</td>
+            <td class="num">22,140</td>
+            <td class="num">6.4%</td>
+            <td class="num" style="color:var(--bad);">▼ 4.2%</td>
+            <td><span class="tag red">Watch</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="sku-cell">
+                <div class="sku-thumb" style="background:linear-gradient(135deg,#4A2511 0%,#251006 100%);"></div>
+                <div>
+                  <div class="sku-name">Microwave Mug Cake · Variety 6-pack</div>
+                  <div class="sku-asin">B0DG12FA06 · Grocery</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">$4,150</td>
+            <td class="num">364</td>
+            <td class="num">19,820</td>
+            <td class="num">3.1%</td>
+            <td class="num" style="color:var(--muted);">New launch</td>
+            <td><span class="tag gray">Launch</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== MEDIA LIFT · WIDGET 1: TIMELINE ========== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="script">Media Lift</span> &nbsp;<span style="color:var(--charcoal);font-weight:900;">Content to Commerce</span></h2>
+      <div class="meta">Trailing 60 days</div>
+    </div>
+    <div style="margin-top:-12px; margin-bottom:18px; font-family:'Nunito Sans',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.28em; color:var(--muted);">
+      POWERED BY <span style="color:var(--teal);">RAIN</span><span style="color:var(--charcoal);">MKR</span> ANALYTICS
+    </div>
+
+    <!-- Headline insight bar -->
+    <div style="background: var(--charcoal); color: #fff; border-radius: 4px; padding: 22px 28px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; border-left: 4px solid var(--red);">
+      <div>
+        <div style="font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 0.01em; line-height: 1.3;">
+          Your content drove an estimated <span style="color: var(--teal);">$64,400</span> in incremental Amazon revenue over the last 60 days.
+        </div>
+        <div style="font-size: 12px; color: #BFC2C5; margin-top: 8px; letter-spacing: 0.04em;">
+          That&rsquo;s <span style="color:#fff;font-weight:700;">35% of total revenue</span> attributable to creator-led lift · 22 content drops measured
+        </div>
+      </div>
+      <div style="text-align: right; border-left: 1px solid #555; padding-left: 24px;">
+        <div style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #BFC2C5; font-weight: 700; margin-bottom: 6px;">Lift Rate</div>
+        <div style="font-family: 'Nunito Sans', sans-serif; font-weight: 900; font-size: 38px; color: var(--teal); line-height: 1;">3.2<span style="font-size: 18px;">x</span></div>
+        <div style="font-size: 10px; color: #888; margin-top: 4px; letter-spacing: 0.05em;">vs no-content baseline</div>
+      </div>
+    </div>
+
+    <!-- The timeline chart -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <div>
+          <div class="card-title">Content drops &amp; Amazon revenue · daily</div>
+          <div class="card-sub">Flags mark content posts · shaded zones show measured lift above baseline</div>
+        </div>
+        <div style="display:flex; gap:14px; font-size:11px; font-weight:600; letter-spacing:0.05em; color:var(--charcoal);">
+          <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;"></span>YouTube</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--teal);border-radius:2px;"></span>Instagram</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--charcoal);border-radius:2px;"></span>TikTok</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:#D4A017;border-radius:2px;"></span>QVC</span>
+        </div>
+      </div>
+
+      <div style="width:100%; height: 320px; position: relative; margin-top: 18px;">
+        <svg viewBox="0 0 1100 320" preserveAspectRatio="none" style="width:100%; height:100%;">
+          <!-- definitions -->
+          <defs>
+            <linearGradient id="liftFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3DBCB4" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#3DBCB4" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+
+          <!-- y-axis gridlines -->
+          <g stroke="#E5E0D8" stroke-width="1">
+            <line x1="50" y1="40" x2="1080" y2="40"/>
+            <line x1="50" y1="100" x2="1080" y2="100"/>
+            <line x1="50" y1="160" x2="1080" y2="160"/>
+            <line x1="50" y1="220" x2="1080" y2="220"/>
+          </g>
+
+          <!-- y-axis labels (revenue) -->
+          <g font-family="JetBrains Mono" font-size="10" fill="#6E6E6E">
+            <text x="44" y="44" text-anchor="end">$12k</text>
+            <text x="44" y="104" text-anchor="end">$9k</text>
+            <text x="44" y="164" text-anchor="end">$6k</text>
+            <text x="44" y="224" text-anchor="end">$3k</text>
+          </g>
+
+          <!-- BASELINE (dashed, what revenue would be without content) -->
+          <polyline fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="4 4"
+            points="60,200 130,202 200,198 270,200 340,199 410,201 480,198 550,200 620,197 690,199 760,196 830,198 900,195 970,197 1040,194 1075,195"/>
+
+          <!-- LIFT SHADE · actual minus baseline, the dramatic visual -->
+          <path d="
+            M 60,200
+            L 100,195 L 130,165 L 160,140 L 190,155 L 220,180 L 250,190 L 270,195
+            L 290,192 L 310,170 L 340,145 L 370,135 L 400,150 L 430,175 L 460,190 L 480,195
+            L 510,190 L 540,165 L 570,135 L 600,115 L 630,130 L 660,160 L 690,180 L 720,190
+            L 750,185 L 780,155 L 810,110 L 840,75  L 870,90  L 900,125 L 930,155 L 960,175 L 990,185
+            L 1020,180 L 1050,165 L 1075,160
+            L 1075,195 L 1040,194 L 970,197 L 900,195 L 830,198 L 760,196 L 690,199 L 620,197
+            L 550,200 L 480,198 L 410,201 L 340,199 L 270,200 L 200,198 L 130,202 L 60,200 Z"
+            fill="url(#liftFill)"/>
+
+          <!-- ACTUAL revenue line (red, the hero line) -->
+          <polyline fill="none" stroke="#E51D2B" stroke-width="2.5" stroke-linejoin="round"
+            points="60,200 100,195 130,165 160,140 190,155 220,180 250,190 270,195
+                    290,192 310,170 340,145 370,135 400,150 430,175 460,190 480,195
+                    510,190 540,165 570,135 600,115 630,130 660,160 690,180 720,190
+                    750,185 780,155 810,110 840,75 870,90 900,125 930,155 960,175 990,185
+                    1020,180 1050,165 1075,160"/>
+
+          <!-- CONTENT DROP FLAGS - planted at the date, sticking up from chart bottom -->
+          <!-- YouTube drops (red) - bigger pole, the engines -->
+          <g>
+            <line x1="130" y1="280" x2="130" y2="160" stroke="#E51D2B" stroke-width="1.5"/>
+            <rect x="123" y="270" width="14" height="14" fill="#E51D2B" rx="1"/>
+            <text x="130" y="280" text-anchor="middle" font-family="Nunito Sans" font-size="9" font-weight="900" fill="#fff">YT</text>
+          </g>
+          <g>
+            <line x1="340" y1="280" x2="340" y2="140" stroke="#E51D2B" stroke-width="1.5"/>
+            <rect x="333" y="270" width="14" height="14" fill="#E51D2B" rx="1"/>
+            <text x="340" y="280" text-anchor="middle" font-family="Nunito Sans" font-size="9" font-weight="900" fill="#fff">YT</text>
+          </g>
+          <g>
+            <line x1="570" y1="280" x2="570" y2="130" stroke="#E51D2B" stroke-width="1.5"/>
+            <rect x="563" y="270" width="14" height="14" fill="#E51D2B" rx="1"/>
+            <text x="570" y="280" text-anchor="middle" font-family="Nunito Sans" font-size="9" font-weight="900" fill="#fff">YT</text>
+          </g>
+          <g>
+            <line x1="810" y1="280" x2="810" y2="105" stroke="#E51D2B" stroke-width="1.5"/>
+            <rect x="803" y="270" width="14" height="14" fill="#E51D2B" rx="1"/>
+            <text x="810" y="280" text-anchor="middle" font-family="Nunito Sans" font-size="9" font-weight="900" fill="#fff">YT</text>
+          </g>
+
+          <!-- QVC marquee event (gold, biggest spike) -->
+          <g>
+            <line x1="840" y1="280" x2="840" y2="65" stroke="#D4A017" stroke-width="2"/>
+            <rect x="828" y="262" width="24" height="18" fill="#D4A017" rx="1"/>
+            <text x="840" y="275" text-anchor="middle" font-family="Nunito Sans" font-size="9" font-weight="900" fill="#fff">QVC</text>
+            <!-- annotation balloon -->
+            <line x1="840" y1="60" x2="940" y2="35" stroke="#D4A017" stroke-width="1"/>
+            <rect x="940" y="22" width="135" height="32" fill="#D4A017" rx="2"/>
+            <text x="1007" y="36" text-anchor="middle" font-family="Nunito Sans" font-size="10" font-weight="800" fill="#fff">QVC LIVE · 2.4M HH</text>
+            <text x="1007" y="48" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#fff">+$22,000 lift</text>
+          </g>
+
+          <!-- Instagram drops (teal) - many, shorter poles -->
+          <g fill="#3DBCB4">
+            <rect x="180"  y="278" width="10" height="10" rx="1"/>
+            <rect x="240" y="278" width="10" height="10" rx="1"/>
+            <rect x="295" y="278" width="10" height="10" rx="1"/>
+            <rect x="395" y="278" width="10" height="10" rx="1"/>
+            <rect x="450" y="278" width="10" height="10" rx="1"/>
+            <rect x="510" y="278" width="10" height="10" rx="1"/>
+            <rect x="615" y="278" width="10" height="10" rx="1"/>
+            <rect x="680" y="278" width="10" height="10" rx="1"/>
+            <rect x="745" y="278" width="10" height="10" rx="1"/>
+            <rect x="880" y="278" width="10" height="10" rx="1"/>
+            <rect x="940" y="278" width="10" height="10" rx="1"/>
+            <rect x="1010" y="278" width="10" height="10" rx="1"/>
+          </g>
+
+          <!-- TikTok drops (charcoal) - smallest -->
+          <g fill="#303030">
+            <circle cx="210" cy="295" r="4"/>
+            <circle cx="265" cy="295" r="4"/>
+            <circle cx="320" cy="295" r="4"/>
+            <circle cx="375" cy="295" r="4"/>
+            <circle cx="425" cy="295" r="4"/>
+            <circle cx="495" cy="295" r="4"/>
+            <circle cx="545" cy="295" r="4"/>
+            <circle cx="600" cy="295" r="4"/>
+            <circle cx="650" cy="295" r="4"/>
+            <circle cx="705" cy="295" r="4"/>
+            <circle cx="765" cy="295" r="4"/>
+            <circle cx="850" cy="295" r="4"/>
+            <circle cx="905" cy="295" r="4"/>
+            <circle cx="965" cy="295" r="4"/>
+            <circle cx="1025" cy="295" r="4"/>
+          </g>
+
+          <!-- annotation on a YouTube spike to make the causal point unmissable -->
+          <g>
+            <line x1="570" y1="135" x2="500" y2="80" stroke="#E51D2B" stroke-width="1" stroke-dasharray="2 2"/>
+            <rect x="345" y="65" width="155" height="32" fill="#fff" stroke="#E51D2B" stroke-width="1.5" rx="2"/>
+            <text x="422" y="79" text-anchor="middle" font-family="Nunito Sans" font-size="10" font-weight="800" fill="#E51D2B">YT EPISODE · MAY 12</text>
+            <text x="422" y="91" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#303030">+$6,200 lift over 5 days</text>
+          </g>
+
+          <!-- x-axis dates -->
+          <g font-family="Open Sans" font-size="10" fill="#6E6E6E">
+            <text x="60"   y="315" text-anchor="middle">Mar 25</text>
+            <text x="200"  y="315" text-anchor="middle">Apr 5</text>
+            <text x="340"  y="315" text-anchor="middle">Apr 15</text>
+            <text x="480"  y="315" text-anchor="middle">Apr 25</text>
+            <text x="620"  y="315" text-anchor="middle">May 5</text>
+            <text x="760"  y="315" text-anchor="middle">May 15</text>
+            <text x="900"  y="315" text-anchor="middle">May 19</text>
+            <text x="1040" y="315" text-anchor="middle">May 24</text>
+          </g>
+
+          <!-- y-axis title (left) -->
+          <text x="20" y="130" font-family="Nunito Sans" font-size="9" font-weight="800" fill="#6E6E6E"
+            transform="rotate(-90 20 130)" letter-spacing="2">DAILY REVENUE</text>
+        </svg>
+      </div>
+
+      <!-- footnote -->
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--rule); font-size:11px; color:var(--muted); letter-spacing:0.03em;">
+        <span style="color:var(--charcoal); font-weight:700;">Methodology:</span> Baseline = forecasted revenue from non-content factors (paid media, organic search, seasonality). Lift = actual minus baseline, attributed to content drops within a 7-day attribution window using time-decayed weighting.
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MEDIA LIFT · WIDGET 2: CHANNEL VERDICT ========== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="script">Media Lift</span> &nbsp;<span style="color:var(--charcoal);font-weight:900;">Channel Performance</span></h2>
+      <div class="meta">Incremental Amazon revenue by channel · trailing 60 days</div>
+    </div>
+    <div style="margin-top:-12px; margin-bottom:18px; font-family:'Nunito Sans',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.28em; color:var(--muted);">
+      POWERED BY <span style="color:var(--teal);">RAIN</span><span style="color:var(--charcoal);">MKR</span> ANALYTICS
+    </div>
+
+    <div class="card">
+      <div style="display:grid; grid-template-columns: 1fr auto; gap:24px; align-items:start; margin-bottom: 24px;">
+        <div>
+          <div class="card-title">Where the lift came from</div>
+          <div class="card-sub">Sorted by incremental revenue · efficiency shown as dollars per post</div>
+        </div>
+        <div style="display:flex;gap:18px; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); font-weight:700;">
+          <span>Bar &mdash; total lift</span>
+          <span>Value &mdash; $ per post</span>
+        </div>
+      </div>
+
+      <!-- Channel rows -->
+      <div style="display: grid; grid-template-columns: 110px 1fr 130px 90px 90px; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 2px solid var(--charcoal); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 700;">
+        <span>Channel</span>
+        <span>Incremental Revenue</span>
+        <span style="text-align:right;">Total $ Lift</span>
+        <span style="text-align:right;">Posts</span>
+        <span style="text-align:right;">$ / Post</span>
+      </div>
+
+      <!-- YouTube -->
+      <div style="display: grid; grid-template-columns: 110px 1fr 130px 90px 90px; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--rule);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:14px;height:14px;background:var(--red);border-radius:2px;"></span>
+          <span style="font-weight:700; font-family:'Nunito Sans'; text-transform:uppercase; font-size:12px; letter-spacing:0.05em; color:var(--charcoal);">YouTube</span>
+        </div>
+        <div style="height:14px; background:var(--alt); border-radius:3px; overflow:hidden;">
+          <div style="width:100%; height:100%; background: linear-gradient(90deg, #E51D2B 0%, #E51D2B 100%); border-radius:3px;"></div>
+        </div>
+        <div style="text-align:right; font-family:'Nunito Sans'; font-weight:900; font-size:18px; color:var(--charcoal); font-variant-numeric: tabular-nums;">$24,200</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; color:var(--charcoal); font-weight:600;">4</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; font-weight:700; color:var(--teal-dark);">$6,050</div>
+      </div>
+
+      <!-- QVC -->
+      <div style="display: grid; grid-template-columns: 110px 1fr 130px 90px 90px; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--rule);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:14px;height:14px;background:#D4A017;border-radius:2px;"></span>
+          <span style="font-weight:700; font-family:'Nunito Sans'; text-transform:uppercase; font-size:12px; letter-spacing:0.05em; color:var(--charcoal);">QVC</span>
+        </div>
+        <div style="height:14px; background:var(--alt); border-radius:3px; overflow:hidden;">
+          <div style="width:91%; height:100%; background:#D4A017; border-radius:3px;"></div>
+        </div>
+        <div style="text-align:right; font-family:'Nunito Sans'; font-weight:900; font-size:18px; color:var(--charcoal); font-variant-numeric: tabular-nums;">$22,000</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; color:var(--charcoal); font-weight:600;">1</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; font-weight:700; color:var(--teal-dark);">$22,000</div>
+      </div>
+
+      <!-- Instagram -->
+      <div style="display: grid; grid-template-columns: 110px 1fr 130px 90px 90px; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--rule);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:14px;height:14px;background:var(--teal);border-radius:2px;"></span>
+          <span style="font-weight:700; font-family:'Nunito Sans'; text-transform:uppercase; font-size:12px; letter-spacing:0.05em; color:var(--charcoal);">Instagram</span>
+        </div>
+        <div style="height:14px; background:var(--alt); border-radius:3px; overflow:hidden;">
+          <div style="width:49%; height:100%; background:var(--teal); border-radius:3px;"></div>
+        </div>
+        <div style="text-align:right; font-family:'Nunito Sans'; font-weight:900; font-size:18px; color:var(--charcoal); font-variant-numeric: tabular-nums;">$11,800</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; color:var(--charcoal); font-weight:600;">12</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; font-weight:700; color:var(--charcoal);">$983</div>
+      </div>
+
+      <!-- TikTok -->
+      <div style="display: grid; grid-template-columns: 110px 1fr 130px 90px 90px; gap: 16px; align-items: center; padding: 18px 0;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:14px;height:14px;background:var(--charcoal);border-radius:2px;"></span>
+          <span style="font-weight:700; font-family:'Nunito Sans'; text-transform:uppercase; font-size:12px; letter-spacing:0.05em; color:var(--charcoal);">TikTok</span>
+        </div>
+        <div style="height:14px; background:var(--alt); border-radius:3px; overflow:hidden;">
+          <div style="width:27%; height:100%; background:var(--charcoal); border-radius:3px;"></div>
+        </div>
+        <div style="text-align:right; font-family:'Nunito Sans'; font-weight:900; font-size:18px; color:var(--charcoal); font-variant-numeric: tabular-nums;">$6,400</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; color:var(--charcoal); font-weight:600;">15</div>
+        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:13px; font-weight:700; color:var(--charcoal);">$427</div>
+      </div>
+
+      <!-- The verdict insight -->
+      <div style="margin-top: 22px; padding: 18px 20px; background: var(--cream); border-left: 3px solid var(--teal); border-radius: 0 3px 3px 0;">
+        <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-dark); font-weight: 800; margin-bottom: 6px;">Analysis</div>
+        <div style="font-size: 14px; color: var(--charcoal); line-height: 1.55;">
+          <strong>QVC and long-form YouTube punch dramatically above their weight on a per-post basis.</strong> Instagram and TikTok deliver volume and brand maintenance, but the highest-ROI play is doubling YouTube cadence and locking in additional QVC appearances. <span style="color: var(--muted);">Flagged for Q3 content planning.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== REVIEWS ========== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="script">Bold Baker</span> REVIEWS</h2>
+      <div class="meta">Catalog-wide · last 90 days</div>
+    </div>
+
+    <div class="card reviews-card">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:32px;">
+        <div>
+          <div class="rating">
+            <span class="rating-num">4.7</span>
+            <div>
+              <div class="stars">★★★★★</div>
+              <div class="rating-meta">1,284 reviews · +218 last 30d</div>
+            </div>
+          </div>
+
+          <div class="rev-row"><span>5★</span><div class="rev-bar"><span style="width:74%;"></span></div><span class="mono">74%</span></div>
+          <div class="rev-row"><span>4★</span><div class="rev-bar"><span style="width:18%;"></span></div><span class="mono">18%</span></div>
+          <div class="rev-row"><span>3★</span><div class="rev-bar"><span style="width:5%;"></span></div><span class="mono">5%</span></div>
+          <div class="rev-row"><span>2★</span><div class="rev-bar"><span style="width:2%;"></span></div><span class="mono">2%</span></div>
+          <div class="rev-row"><span>1★</span><div class="rev-bar"><span style="width:1%;"></span></div><span class="mono">1%</span></div>
+        </div>
+
+        <div>
+          <div style="font-size:10px;letter-spacing:0.15em;font-weight:700;color:var(--muted);text-transform:uppercase; margin-bottom: 4px;">Top themes</div>
+          <div class="themes">
+            <div class="theme">
+              <span class="theme-name">Easy to follow recipes</span>
+              <span class="theme-sent pos">+96 · 312 mentions</span>
+            </div>
+            <div class="theme">
+              <span class="theme-name">Photo quality</span>
+              <span class="theme-sent pos">+91 · 188 mentions</span>
+            </div>
+            <div class="theme">
+              <span class="theme-name">Gift-worthy</span>
+              <span class="theme-sent pos">+88 · 142 mentions</span>
+            </div>
+            <div class="theme">
+              <span class="theme-name">Measurements (US vs metric)</span>
+              <span class="theme-sent neg">−42 · 38 mentions</span>
+            </div>
+            <div class="theme">
+              <span class="theme-name">Shipping condition</span>
+              <span class="theme-sent neg">−31 · 24 mentions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== INVENTORY ========== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="script">Inventory</span> HEALTH</h2>
+      <div class="meta">Weeks of cover · FBA fulfillable inventory</div>
+    </div>
+
+    <div class="card">
+      <div class="inv-row" style="border-bottom: 2px solid var(--charcoal); padding-bottom:8px;">
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); font-weight:700;">SKU</div>
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); font-weight:700; text-align:right;">Units</div>
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); font-weight:700;">Cover</div>
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); font-weight:700; text-align:right;">Weeks</div>
+      </div>
+
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background-image:url('https://images-na.ssl-images-amazon.com/images/I/81pCQpx7y6L._SL1500_.jpg');"></div>
+          <div class="sku-name" style="font-size:12px;">BBB Cookbook</div>
+        </div>
+        <div class="weeks">4,820</div>
+        <div class="inv-bar"><span style="width:60%;"></span></div>
+        <div class="weeks">8.1w</div>
+      </div>
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background:linear-gradient(135deg,#5C3317,#3D1F0C);"></div>
+          <div class="sku-name" style="font-size:12px;">Cookie Mix</div>
+        </div>
+        <div class="weeks">2,940</div>
+        <div class="inv-bar"><span class="warn" style="width:32%;"></span></div>
+        <div class="weeks" style="color:#C5811E;">3.7w</div>
+      </div>
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background:linear-gradient(135deg,#3A1D0B,#1F0E04);"></div>
+          <div class="sku-name" style="font-size:12px;">Brownie Mix</div>
+        </div>
+        <div class="weeks">4,180</div>
+        <div class="inv-bar"><span style="width:54%;"></span></div>
+        <div class="weeks">6.9w</div>
+      </div>
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background:linear-gradient(135deg,#C19A6B,#8B6B43);"></div>
+          <div class="sku-name" style="font-size:12px;">Scone Mix</div>
+        </div>
+        <div class="weeks">920</div>
+        <div class="inv-bar"><span class="crit" style="width:18%;"></span></div>
+        <div class="weeks" style="color:var(--red);">2.4w</div>
+      </div>
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background:linear-gradient(135deg,#D4A574,#A57642);"></div>
+          <div class="sku-name" style="font-size:12px;">Banana Bread Mix</div>
+        </div>
+        <div class="weeks">3,840</div>
+        <div class="inv-bar"><span style="width:71%;"></span></div>
+        <div class="weeks">8.9w</div>
+      </div>
+      <div class="inv-row">
+        <div class="sku-cell">
+          <div class="sku-thumb" style="background:linear-gradient(135deg,#E8C078,#B88B3E);"></div>
+          <div class="sku-name" style="font-size:12px;">Pancake Mix</div>
+        </div>
+        <div class="weeks">6,210</div>
+        <div class="inv-bar"><span class="warn" style="width:95%;"></span></div>
+        <div class="weeks" style="color:#C5811E;">14.2w</div>
+      </div>
+
+      <div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);font-size:10px;letter-spacing:0.08em;color:var(--muted);font-weight:600;text-transform:uppercase;">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;"></span>Low &lt; 3w</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:#E89B2A;border-radius:2px;"></span>Watch · 3–4w or &gt; 12w</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--teal);border-radius:2px;"></span>Healthy 4–12w</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <span class="teal">Bigger Bolder Baking</span> &middot; Amazon Performance Dashboard
+</footer>
+
+</body>
+</html>
